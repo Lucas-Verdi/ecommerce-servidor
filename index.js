@@ -2,34 +2,73 @@ const express = require('express')
 const app = express()
 const port = 3000
 const cors = require('cors')
-const { Sequelize } = require('sequelize')
+const { Sequelize, DataTypes } = require('sequelize')
 
-const sequelize = new Sequelize('ecommerce', 'root', '64784585', {
-  host: 'localhost',
-  dialect: 'mysql'
-});
+
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}`)
+})
 
 app.use(express.json());
 app.use(cors({
   origin: true,
 }))
 
+const sequelize = new Sequelize('ecommerce', 'root', '64784585', {
+  host: 'localhost',
+  dialect: 'mysql'
+});
 
-app.get('/', (req, res) => {
-  res.send('Hello World!')
+const Cliente = sequelize.define('clientes', {
+  nome: {
+    type: DataTypes.STRING
+  },
+  sobrenome: {
+    type: DataTypes.STRING
+  },
+  dtnascimento: {
+    type: DataTypes.DATE
+  },
+  cpf: {
+    type: DataTypes.INTEGER
+  },
+  email: {
+    type: DataTypes.STRING
+  },
+  celular: {
+    type: DataTypes.STRING
+  },
+  password: {
+    type: DataTypes.STRING
+  }
+
 })
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
+app.post('/cadastro', async (req, res) => {
+  try {
+    const novoCliente = await Cliente.create({
+      nome: req.body.nome,
+      sobrenome: req.body.sobrenome,
+      dtnascimento: req.body.dtnascimento,
+      cpf: req.body.cpf,
+      email: req.body.email,
+      celular: req.body.celular,
+      password: req.body.password
+    })
+  } catch (error) {
+    console.error('Erro ao inserir usuário:', error);
+    res.status(500).json({ error: 'Erro ao inserir usuário' });
+  }
+});
 
-app.post('/teste', async (req, res) => {
-  const clientes = await clientes.create({
-    nome: req.body.nome,
-    sobrenome: req.body.sobrenome,
-    dtnascimento: req.body.dtnascimento,
-    cpf: req.body.cpf,
-    email: req.body.email,
-    celular: req.body.celular
-  })
+app.post('/login', async (req, res) => {
+  const { email, password } = req.body
+  const logado = await Cliente.findOne({ where: {email, password} })
+
+  if(logado){
+    res.json({ success: true })
+  }
+  else{
+    res.json({ success: false })
+  }
 })
