@@ -7,12 +7,17 @@ const jwt = require('jsonwebtoken')
 const segredo = 'yN5"xD7!dM9<fF8!eO6!tF5}sD9"kZ0,'
 
 
-function verifyJWT(req, res, next){
+function verifyJWT(req, res, next) {
   const token = req.headers['x-access-token']
   jwt.verify(token, segredo, (err, decoded) => {
-    if (err) return res.status(401).end()
-    req.userId = decoded.userId
-    next()
+    if (err) {
+      return res.status(401).end()
+    }
+    else {
+      req.userId = decoded.userId
+      next()
+    }
+
   })
 }
 
@@ -74,19 +79,20 @@ app.post('/cadastro', async (req, res) => {
 
 app.post('/login', async (req, res) => {
   const { email, password } = req.body
-  const logado = await Cliente.findOne({ where: {email, password} })
-  const id = await Cliente.findAll({attributes:['id'], where: {email, password}})
+  const logado = await Cliente.findOne({ where: { email, password } })
+  const id = await Cliente.findAll({ attributes: ['id'], where: { email, password } })
 
-  if(logado){
-    const token = jwt.sign({userId: id}, segredo, {expiresIn: 30})
+  if (logado) {
+    const token = jwt.sign({ userId: id[0].id }, segredo, { expiresIn: 300 })
     res.json({ success: true, token })
   }
-  else{
-    res.json({ success: false })
+  else {
+    res.status(401).end()
   }
 })
 
 app.post('/verify', verifyJWT, async (req, res) => {
+  console.log('Usuário de ID ' + req.userId + ' Fez login.')
   res.json({ success: true })
 })
 
