@@ -1,3 +1,4 @@
+const decrypt = require('./decrypt')
 const express = require('express')
 const app = express()
 const port = 3000
@@ -78,12 +79,15 @@ app.post('/cadastro', async (req, res) => {
 });
 
 app.post('/login', async (req, res) => {
-  const { email, password } = req.body
+  const data = req.body
+  const string = decrypt(data)
+  const json = JSON.parse(string)
+  const { email, password } = json
   const logado = await Cliente.findOne({ where: { email, password } })
   const id = await Cliente.findAll({ attributes: ['id'], where: { email, password } })
 
   if (logado) {
-    const token = jwt.sign({ userId: id[0].id }, segredo, { expiresIn: 300 })
+    const token = jwt.sign({ userId: id[0].id }, segredo, { expiresIn: 86400 })
     res.json({ success: true, token })
   }
   else {
