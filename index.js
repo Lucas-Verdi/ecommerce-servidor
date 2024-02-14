@@ -5,6 +5,7 @@ const port = 3000
 const cors = require('cors')
 const { Sequelize, DataTypes } = require('sequelize')
 const jwt = require('jsonwebtoken')
+const bodyParser = require('body-parser');
 const segredo = 'yN5"xD7!dM9<fF8!eO6!tF5}sD9"kZ0,'
 
 
@@ -79,10 +80,11 @@ app.post('/cadastro', async (req, res) => {
 });
 
 app.post('/login', async (req, res) => {
-  const data = req.body
-  const string = decrypt(data)
-  const json = JSON.parse(string)
-  const { email, password } = json
+  const data = req.headers['credentials']
+  console.log(data);
+  const decryptedData = await decrypt(data)
+  console.log(decryptedData);
+  const { email, password } = decryptedData[0]
   const logado = await Cliente.findOne({ where: { email, password } })
   const id = await Cliente.findAll({ attributes: ['id'], where: { email, password } })
 
