@@ -64,14 +64,16 @@ const Cliente = sequelize.define('clientes', {
 
 app.post('/cadastro', async (req, res) => {
   try {
+    const data = req.headers['credentials']
+    const decryptedData = await decrypt(data)
     const novoCliente = await Cliente.create({
-      nome: req.body.nome,
-      sobrenome: req.body.sobrenome,
-      dtnascimento: req.body.dtnascimento,
-      cpf: req.body.cpf,
-      email: req.body.email,
-      celular: req.body.celular,
-      password: req.body.password
+      nome: decryptedData[0].nome,
+      sobrenome: decryptedData[0].sobrenome,
+      dtnascimento: decryptedData[0].dtnascimento,
+      cpf: decryptedData[0].cpf,
+      email: decryptedData[0].email,
+      celular: decryptedData[0].celular,
+      password: decryptedData[0].password
     })
   } catch (error) {
     console.error('Erro ao inserir usuário:', error);
@@ -81,9 +83,7 @@ app.post('/cadastro', async (req, res) => {
 
 app.post('/login', async (req, res) => {
   const data = req.headers['credentials']
-  console.log(data);
   const decryptedData = await decrypt(data)
-  console.log(decryptedData);
   const { email, password } = decryptedData[0]
   const logado = await Cliente.findOne({ where: { email, password } })
   const id = await Cliente.findAll({ attributes: ['id'], where: { email, password } })
