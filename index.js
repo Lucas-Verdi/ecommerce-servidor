@@ -62,6 +62,24 @@ const Cliente = sequelize.define('clientes', {
 
 })
 
+const Produto = sequelize.define('produtos', {
+  nome: {
+    type: DataTypes.STRING
+  },
+  valor: {
+    type: DataTypes.DECIMAL
+  }
+})
+
+const MaisVendido = sequelize.define('maisvendidos', {
+  nome: {
+    type: DataTypes.STRING
+  },
+  valor: {
+    type: DataTypes.DECIMAL
+  }
+})
+
 app.post('/cadastro', async (req, res) => {
   try {
     const data = req.headers['credentials']
@@ -102,3 +120,12 @@ app.post('/verify', verifyJWT, async (req, res) => {
   res.json({ success: true })
 })
 
+app.post('/produtos', async (req, res) => {
+    const produtos = await Produto.findAll({ attributes: ['nomeproduto', 'valorproduto'] })
+    res.send(produtos)
+})
+
+app.post('/maisvendidos', async (req, res) => {
+  const maisvendido = await MaisVendido.findAll({ attributes: ['maisvendidonome', 'maisvendidovalor'] })
+  res.send(maisvendido)
+})
