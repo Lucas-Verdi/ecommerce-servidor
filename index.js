@@ -86,6 +86,9 @@ const Carrinho = sequelize.define('carrinho', {
   },
   idproduto: {
     type: DataTypes.INTEGER
+  },
+  idmaisvendido: {
+    type: DataTypes.INTEGER
   }
 })
 
@@ -135,11 +138,6 @@ app.post('/produtos', async (req, res) => {
   res.send(produtos)
 })
 
-app.post('/maisvendidos', async (req, res) => {
-  const maisvendido = await MaisVendido.findAll({ attributes: ['maisvendidonome', 'maisvendidovalor'] })
-  res.send(maisvendido)
-})
-
 app.post('/cartadd', verifyJWT, async (req, res) => {
   const idcliente = `${req.userId}`
   const idproduto = req.headers['idproduto']
@@ -164,12 +162,13 @@ app.post('/cartverify', verifyJWT, async (req, res) => {
 })
 
 app.post('/cartshow', verifyJWT, async (req, res) => {
-  const idprodutos = req.body
+  const idmaisvendidos = req.body
   let final = []
-  for (let i = 0; i < idprodutos.length; i++) {
-    let id = idprodutos[i].idproduto
+  for (let i = 0; i < idmaisvendidos.length; i++) {
+    let id = idmaisvendidos[i].idproduto
     let produtos = await Produto.findAll({ attributes: ['nomeproduto', 'valorproduto'], where: { id } })
     final.push(produtos)
   }
   res.json(final)
 })
+
