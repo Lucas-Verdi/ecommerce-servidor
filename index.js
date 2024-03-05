@@ -172,3 +172,15 @@ app.post('/cartshow', verifyJWT, async (req, res) => {
   res.json(final)
 })
 
+app.post('/removeritemcarrinho', verifyJWT, async (req, res) => {
+  const nomeproduto = req.headers['nomeproduto']
+  const valorproduto = req.headers['valorproduto']
+  let produtoId = await Produto.findOne({ attributes: ['id'], where:  {nomeproduto, valorproduto } })
+  await Carrinho.destroy({
+    where: {
+      idproduto: produtoId.dataValues.id
+    }
+  })
+  res.send('success')
+})
+
