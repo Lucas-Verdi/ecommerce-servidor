@@ -8,7 +8,7 @@ const jwt = require('jsonwebtoken')
 const bodyParser = require('body-parser');
 const segredo = 'yN5"xD7!dM9<fF8!eO6!tF5}sD9"kZ0,'
 
-
+//Middleware de verificação de token
 function verifyJWT(req, res, next) {
   const token = req.headers['x-access-token']
   jwt.verify(token, segredo, (err, decoded) => {
@@ -23,6 +23,7 @@ function verifyJWT(req, res, next) {
   })
 }
 
+//Instância do express
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
@@ -32,6 +33,7 @@ app.use(cors({
   origin: true,
 }))
 
+//Modelagem do banco de dados
 const sequelize = new Sequelize('ecommerce', 'root', '64784585', {
   host: 'localhost',
   dialect: 'mysql'
@@ -92,7 +94,7 @@ const Carrinho = sequelize.define('carrinho', {
   }
 })
 
-
+//Rota para cadastro
 app.post('/cadastro', async (req, res) => {
   try {
     const data = req.headers['credentials']
@@ -112,6 +114,7 @@ app.post('/cadastro', async (req, res) => {
   }
 });
 
+//Rota para login
 app.post('/login', async (req, res) => {
   const data = req.headers['credentials']
   const decryptedData = await decrypt(data)
@@ -128,16 +131,19 @@ app.post('/login', async (req, res) => {
   }
 })
 
+//Rota para verificação de autenticação ao entrar no site
 app.post('/verify', verifyJWT, async (req, res) => {
   console.log('Usuário de ID ' + req.userId + ' Fez login.')
   res.json({ success: true })
 })
 
+//Rota para trazer os produtos para a index page
 app.post('/produtos', async (req, res) => {
   const produtos = await Produto.findAll({ attributes: ['nomeproduto', 'valorproduto'] })
   res.send(produtos)
 })
 
+//Rota para adicionar ao carrinho
 app.post('/cartadd', verifyJWT, async (req, res) => {
   const idcliente = `${req.userId}`
   const idproduto = req.headers['idproduto']
@@ -148,19 +154,22 @@ app.post('/cartadd', verifyJWT, async (req, res) => {
   res.json({ success: true })
 })
 
-app.post('/productverify', verifyJWT, async (req, res) => {
+//Rota para verificar qual produto será adicionado ao carrinho
+app.post('/productverify', async (req, res) => {
   const nomeproduto = req.headers['nomeproduto']
   const valorproduto = req.headers['valorproduto']
   const produto = await Produto.findAll({ attributes: ['id'], where: { nomeproduto, valorproduto } })
   res.json(produto[0].id)
 })
 
+//Rota para verificar os id's de produtos inseridos no carrinho
 app.post('/cartverify', verifyJWT, async (req, res) => {
   const idcliente = `${req.userId}`
   const carrinho = await Carrinho.findAll({ attributes: ['idproduto'], where: { idcliente } })
   res.json(carrinho)
 })
 
+//Rota para exibir produtos no carrinho
 app.post('/cartshow', verifyJWT, async (req, res) => {
   const idmaisvendidos = req.body
   let final = []
@@ -172,6 +181,7 @@ app.post('/cartshow', verifyJWT, async (req, res) => {
   res.json(final)
 })
 
+//Rota para remover item do carrinho
 app.post('/removeritemcarrinho', verifyJWT, async (req, res) => {
   const nomeproduto = req.headers['nomeproduto']
   const valorproduto = req.headers['valorproduto']
@@ -183,4 +193,12 @@ app.post('/removeritemcarrinho', verifyJWT, async (req, res) => {
   })
   res.send('success')
 })
+
+//Rota para verificar o produto e exibir os dados na página do produto em questão
+app.post('/toPage', async (req, res) => {
+  const id = req.headers['idproduto']
+  let produto = await Produto.findAll({attributes: ['nomeproduto', 'valorproduto', 'descricao'], where: {id}})
+  res.json(produto)
+})
+
 
