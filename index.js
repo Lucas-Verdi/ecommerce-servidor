@@ -139,7 +139,7 @@ app.post('/verify', verifyJWT, async (req, res) => {
 
 //Rota para trazer os produtos para a index page
 app.post('/produtos', async (req, res) => {
-  const produtos = await Produto.findAll({ attributes: ['nomeproduto', 'valorproduto'] })
+  const produtos = await Produto.findAll({ attributes: ['nomeproduto', 'valorproduto', 'imgproduto'] })
   res.send(produtos)
 })
 
@@ -197,8 +197,14 @@ app.post('/removeritemcarrinho', verifyJWT, async (req, res) => {
 //Rota para verificar o produto e exibir os dados na página do produto em questão
 app.post('/toPage', async (req, res) => {
   const id = req.headers['idproduto']
-  let produto = await Produto.findAll({attributes: ['nomeproduto', 'valorproduto', 'descricao'], where: {id}})
+  let produto = await Produto.findAll({attributes: ['nomeproduto', 'valorproduto', 'descricao', 'imgproduto'], where: {id}})
   res.json(produto)
+})
+
+app.post('/produtopcategoria', async (req, res) => {
+  const categoria = req.headers['idcategoria']
+  let produtos = await Produto.findAll({attributes: ['nomeproduto', 'valorproduto', 'descricao', 'imgproduto'], where: {categoria}})
+  res.json(produtos)
 })
 
 
