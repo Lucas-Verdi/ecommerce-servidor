@@ -3,7 +3,7 @@ const express = require('express')
 const app = express()
 const port = 3000
 const cors = require('cors')
-const { Sequelize, DataTypes } = require('sequelize')
+const { Sequelize, DataTypes, Op } = require('sequelize')
 const jwt = require('jsonwebtoken')
 const bodyParser = require('body-parser');
 const segredo = 'yN5"xD7!dM9<fF8!eO6!tF5}sD9"kZ0,'
@@ -207,4 +207,9 @@ app.post('/produtopcategoria', async (req, res) => {
   res.json(produtos)
 })
 
+app.post('/pesquisa', async (req, res) => {
+  const pesquisa = req.headers['pesquisa']
+  let produtos = await Produto.findAll({attributes: ['nomeproduto', 'valorproduto', 'descricao', 'imgproduto'], where: { nomeproduto: { [Op.like]: '%' + pesquisa + '%' } }})
+  res.json(produtos)
+})
 
