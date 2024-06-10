@@ -34,7 +34,7 @@ app.use(cors({
 }))
 
 //Modelagem do banco de dados
-const sequelize = new Sequelize('ecommerce', 'root', '64784585', {
+const sequelize = new Sequelize('ecommerce', 'root', 'root', {
   host: 'localhost',
   dialect: 'mysql'
 });
@@ -50,7 +50,7 @@ const Cliente = sequelize.define('clientes', {
     type: DataTypes.DATE
   },
   cpf: {
-    type: DataTypes.INTEGER
+    type: DataTypes.STRING
   },
   email: {
     type: DataTypes.STRING
@@ -96,7 +96,6 @@ const Carrinho = sequelize.define('carrinho', {
 
 //Rota para cadastro
 app.post('/cadastro', async (req, res) => {
-  try {
     const data = req.headers['credentials']
     const decryptedData = await decrypt(data)
     const novoCliente = await Cliente.create({
@@ -108,10 +107,6 @@ app.post('/cadastro', async (req, res) => {
       celular: decryptedData[0].celular,
       password: decryptedData[0].password
     })
-  } catch (error) {
-    console.error('Erro ao inserir usuário:', error);
-    res.status(500).json({ error: 'Erro ao inserir usuário' });
-  }
 });
 
 //Rota para login
